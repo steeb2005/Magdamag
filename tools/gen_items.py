@@ -160,13 +160,27 @@ def icon_kwintas():
     return img
 
 
+def icon_salakot():
+    img, d = canvas(16, 16)
+    # Wide brim
+    orect(d, (2, 9, 13, 11), WOOD)
+    d.rectangle([3, 7, 12, 9], fill=WOOD_D)
+    # Crown
+    opoly(d, [(8, 1), (12, 6), (4, 6)], WOOD)
+    d.line([(5, 6), (11, 6)], fill=WOOD_D)
+    # Chin strap
+    d.line([(4, 6), (3, 10)], fill=WOOD_D, width=2)
+    d.line([(12, 6), (13, 10)], fill=WOOD_D, width=2)
+    return img
+
+
 ICONS = {
     "itak": icon_itak, "balisong": icon_balisong, "yantok": icon_yantok,
     "sumpit": icon_sumpit, "banga": icon_banga, "bawang": icon_bawang,
     "tsinelas": icon_tsinelas, "kulintang": icon_kulintang,
     "agimat": icon_agimat, "bakya": icon_bakya, "singsing": icon_singsing,
     "kandila": icon_kandila, "bayong": icon_bayong, "pamaypay": icon_pamaypay,
-    "tabo": icon_tabo, "kwintas": icon_kwintas,
+    "tabo": icon_tabo, "kwintas": icon_kwintas, "salakot": icon_salakot,
 }
 
 

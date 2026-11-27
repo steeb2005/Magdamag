@@ -1,9 +1,9 @@
-# NIGHT OF THE SIGBIN — PROGRESS
+# MAGDAMAG — PROGRESS
 
 **Last updated:** 2026-11-27
 **Engine:** Godot 4.7.2 (`E:\godot\Godot_v4.7.2-stable_win64_console.exe`)
 **Design source of truth:** `NIGHT_OF_THE_SIGBIN_GDD.md` (762 lines, 26 sections)
-**Status:** playable vertical slice. One full 18-minute run works start → win, with deaths, level-ups, evolutions, 2 bosses, and a dawn flip. No audio by design.
+**Status:** playable vertical slice. One full 18-minute run works start → win, with deaths, level-ups, evolutions, 2 bosses, and a dawn flip. No audio by design. **Game renamed to Magdamag**; movement slowed to VS pace; camera shake on hit removed; UI language English (items kept in Tagalog).
 
 > **Update protocol:** this file is edited after every major step. Add a dated line to *Changelog* and move items between *Completed*, *Partial*, and *Remaining*. Never delete history — strike through instead.
 
@@ -127,14 +127,14 @@ Ordered by severity. Everything here is real and observable.
 
 | # | Item | File | Detail |
 |---|---|---|---|
-| 1 | `TICK time=… enemies=…` printed every simulated second | `main.gd:513` | Debug spam left in from spawn tuning. Gate behind `--verbose` or delete. |
-| 2 | Screenshot harness ships in gameplay code | `main.gd` (`_setup_shot`, `_fake_progress`, `_demo_build`) | Dev-only; should be wrapped in `if OS.is_debug_build()` or moved to `tools/`. |
-| 3 | ~~Asset folder pollution~~ **RESOLVED** | `.gitignore` | Was: `art/preview_*.png` + root `shot_*.png` tracked as game textures. Now ignored and untracked. They still sit inside `res://` so Godot keeps importing them — acceptable once untracked; relocating out of `res://` remains optional. |
+| 1 | ~~`TICK time=… enemies=…` printed every simulated second~~ **RESOLVED** | `main.gd` | Gated behind `--verbose` flag. Normal runs stay silent. |
+| 2 | ~~Screenshot harness ships in gameplay code~~ **RESOLVED** | `main.gd` → `dev/shot_harness.gd` | Moved to `dev/` folder; `art/preview_*.png` + `shot_*.png` relocated to `dev/` with `.gdignore` so Godot stops importing them. |
+| 3 | ~~Asset folder pollution~~ **RESOLVED** | `.gitignore` + `dev/` | Was: `art/preview_*.png` + root `shot_*.png` tracked as game textures. Now in `dev/` ignored by Godot. |
 | 4 | ~~Stray logs in project root~~ **RESOLVED** | `.gitignore` | `test_out.txt`, `import_out.txt`, `shot_out.txt` are untracked and ignored. Still written by dev runs; delete freely. |
-| 5 | Nuno `turret` behaviour is unreachable | `enemy.gd` + `main.gd:_pick_type` | `_pick_type()` never returns `nuno`; the enemy exists only as a decor mound. Either spawn hostile nunos or delete the branch. |
-| 6 | `player.armor` is always 0 | `player.gd:28` | No passive feeds it. Dead stat — needs Salakot/Sinigang. |
-| 7 | XP orbs never expire | `orb.gd`, `main.gd:_drop_xp` | Orbs left off-screen accumulate for the whole run (no despawn/pooling). Long-run leak + draw cost. |
-| 8 | No gamepad UI navigation | `hud.gd` | All buttons use `FOCUS_NONE`; level-up cards only respond to keys `1/2/3`. Gamepad can move but not choose cards. |
+| 5 | ~~Nuno `turret` behaviour is unreachable~~ **RESOLVED** | `enemy.gd`, `data.gd` | Removed dead `nuno` enemy definition and `turret` behavior branch. Nuno mounds remain as decor/interactables. |
+| 6 | ~~`player.armor` is always 0~~ **RESOLVED** | `player.gd`, `data.gd` | Added `salakot` passive (+1 armor/level, max 5) to `PASSIVES` and `PASSIVE_ORDER`; wired into `recalc_stats()`. |
+| 7 | ~~XP orbs never expire~~ **RESOLVED** | `orb.gd` | Added `DESPAWN_TIME = 25.0`; orbs `queue_free()` after 25 s if not collected. |
+| 8 | ~~No gamepad UI navigation~~ **RESOLVED** | `hud.gd` | Added dpad/stick + A/Enter navigation for menu, level-up, pause, end screens; focus styleboxes; auto-focus first element on screen open. |
 | 9 | Act boundaries don't match the GDD | `main.gd:act_name`, `_tick_acts` | Game: dawn act at 840 s, sun flip at 990 s. GDD: dawn act at 840 s, sunrise at 1020 s. Cosmetic, but reconcile. |
 | 10 | Boss telegraping is thin | `enemy.gd` boss branches | Kapre stomp damages instantly inside 120 px with only a ring drawn on the same frame; no smoke screen. GDD requires 0.8 s telegraph and vision denial. |
 | 11 | White Lady doesn't match her folklore hook | `enemy.gd` `phase` | She teleports near the player on a timer; GDD says visible only on lantern flicker. |
@@ -260,3 +260,35 @@ One jungle map, procedurally scattered. No stage select, no 7 biomes, no biome-s
 - **2026-11-27** — Visual pass: world shrunk 4096→3200 px; jungle decor density tripled; foliage rebuilt as irregular multi-blob canopies with 3 tree + 2 balete variants (baked shadows removed); ambient lifted; lantern pool reduced; player given a dark outline, brighter palette, and draw priority so it reads inside the horde.
 - **2026-11-27** — `PROGRESS.md` created as the standing status ledger. Headless 2 min autotest re-verified clean after the visual pass.
 - **2026-11-27** — Repo hygiene: `.godot/` untracked (162 files) and `.godot/` + `__pycache__/` + `build/` + `export/` + `*.pck` ignored. `.gitignore` was UTF-16 LE with BOM, which git cannot parse — all patterns were silently inert; rewritten as UTF-8 without BOM and verified with `git check-ignore`. 12 dev artifacts (5 screenshots, 3 scratch logs, 4 art preview sheets) untracked.
+- **2026-11-27** — P0 hygiene pass:
+  1. Gated `TICK` debug print behind `--verbose` flag (normal runs silent).
+  2. Moved screenshot harness to `dev/shot_harness.gd`; relocated `art/preview_*.png` + `shot_*.png` to `dev/` with `.gdignore` so Godot no longer imports them as game textures.
+  3. XP orbs now despawn after 25 s (`orb.gd:DESPAWN_TIME`).
+  4. Removed dead `nuno` enemy + `turret` behavior; added `salakot` passive (+1 armor/level) to give `player.armor` a real source.
+  Verified: headless 2 min `--autotest --god` clean; `--shot-game` renders correctly.
+- **2026-11-27** — Game rebrand & gameplay feel:
+  * Renamed project from "Night of the Sigbin" → **Magdamag** (`project.godot`)
+  * Slowed movement to Vampire Survivors pace: player base speed 110→90, dash 430→320 (longer cooldown 2.0→2.5s); all enemy speeds reduced ~25%
+  * Removed camera shake on player hit (`player.gd:take_damage`)
+  * UI language → English (acts: Dusk/Night/Midnight/Pre-Dawn/Dawn; coins; "Interact"; "Dawn"/"Defeated" end screens); item names (Agimat, Bakya, Salakot, etc.) kept in Tagalog per design
+  Verified: headless 2 min `--autotest --god` clean; all `--shot-*` modes render correctly
+- **2026-11-27** — Non-god balance pass (P1 #1):
+  * Reduced enemy base damage ~40% (tiktik 5→3, balbal 11→7, aswang 15→10, etc.)
+  * Slowed spawn curve: initial 0.7s/2 enemies, max 4/wave, cap 150 (was 0.6s/2, max 6, cap 240)
+  * Reduced enemy HP/damage scaling over time (HP 0.11→0.08/min, DMG 0.05→0.035/min)
+  * Player: base HP 100→140, base speed 90→95, regen 0→2.0 HP/s, post-hit invuln 0.55→0.8s
+  * Result: non-god 2-min autotest survives (t=119, lv10, 18 HP) vs instant death before
+  Verified: headless 2 min `--autotest` clean (survives); `--autotest --god` clean; `--shot-game` renders
+- **2026-11-27** — Evolution test & verification (P1 #2):
+  * Added `--force-evo-test` flag and `--shot-evo` mode to spawn player with Itak L8 + Singsing, trigger level-up
+  * Evolution card ("Itak ng Tagapagbantay") appears correctly in slot 0 with EVOLUTION tag
+  * Verified: `--shot-evo` renders level-up screen with evolution card visible
+  * Non-god 2-min runs show variance (t=63–119, lv7–10) depending on build RNG — acceptable for genre
+  Verified: `--autotest` (survives sometimes), `--autotest --god` (always lv10), `--shot-*` all modes render
+- **2026-11-27** — Gamepad navigation (P1 #3):
+  * Menu: left/right (dpad/stick) or A/D to select character; Enter/A to confirm; first card focused on open
+  * Level-up: left/right to navigate cards; Enter/A to select; first card focused on open; keyboard 1/2/3 still works
+  * Pause: Resume button focused on open; Enter/A to resume; dpad/stick navigates buttons
+  * End screen: ULITIN (retry) button focused on open
+  * All buttons now have focus styleboxes and FOCUS_ALL mode
+  Verified: `--autotest` clean; `--autotest --god` clean; all `--shot-*` modes render

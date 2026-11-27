@@ -112,9 +112,10 @@ const PASSIVES := {
 	"pamaypay": {"name": "Pamaypay", "icon": "res://art/icons/pamaypay.png", "max": 5, "desc": "-7% weapon cooldown."},
 	"tabo": {"name": "Tabo", "icon": "res://art/icons/tabo.png", "max": 5, "desc": "+0.6 HP per second."},
 	"kwintas": {"name": "Kwintas", "icon": "res://art/icons/kwintas.png", "max": 5, "desc": "+15% damage vs aswang."},
+	"salakot": {"name": "Salakot", "icon": "res://art/icons/salakot.png", "max": 5, "desc": "+1 armor."},
 }
 
-const PASSIVE_ORDER := ["agimat", "bakya", "singsing", "kandila", "bayong", "pamaypay", "tabo", "kwintas"]
+const PASSIVE_ORDER := ["agimat", "bakya", "singsing", "kandila", "bayong", "pamaypay", "tabo", "kwintas", "salakot"]
 
 # ---------------------------------------------------------------------------
 # Evolutions: weapon at level 8 + required passive
@@ -145,48 +146,43 @@ const EVOLUTIONS := {
 # ---------------------------------------------------------------------------
 const ENEMIES := {
 	"tiktik": {
-		"name": "Tiktik", "tex": "res://art/enemies/tiktik.png",
-		"hp": 7.0, "speed": 80.0, "dmg": 5.0, "radius": 6.0, "xp": 1,
+		"name": "Bat", "tex": "res://art/enemies/tiktik.png",
+		"hp": 7.0, "speed": 60.0, "dmg": 3.0, "radius": 6.0, "xp": 1,
 		"behavior": "chase", "tags": ["aswang"], "scale": 1.0,
 	},
 	"dwende": {
-		"name": "Dwende", "tex": "res://art/enemies/dwende.png",
-		"hp": 9.0, "speed": 64.0, "dmg": 5.0, "radius": 6.0, "xp": 1,
+		"name": "Imp", "tex": "res://art/enemies/dwende.png",
+		"hp": 9.0, "speed": 48.0, "dmg": 3.0, "radius": 6.0, "xp": 1,
 		"behavior": "chase", "tags": ["spirit"], "scale": 1.0,
 	},
 	"balbal": {
-		"name": "Balbal", "tex": "res://art/enemies/balbal.png",
-		"hp": 36.0, "speed": 34.0, "dmg": 11.0, "radius": 8.0, "xp": 3,
+		"name": "Ghoul", "tex": "res://art/enemies/balbal.png",
+		"hp": 36.0, "speed": 26.0, "dmg": 7.0, "radius": 8.0, "xp": 3,
 		"behavior": "tank", "tags": ["undead"], "scale": 1.0,
 	},
 	"tiyanak": {
-		"name": "Tiyanak", "tex": "res://art/enemies/tiyanak.png",
-		"hp": 16.0, "speed": 58.0, "dmg": 9.0, "radius": 6.5, "xp": 2,
+		"name": "Changeling", "tex": "res://art/enemies/tiyanak.png",
+		"hp": 16.0, "speed": 44.0, "dmg": 6.0, "radius": 6.5, "xp": 2,
 		"behavior": "lunge", "tags": ["aswang"], "scale": 1.0,
 	},
 	"white_lady": {
 		"name": "White Lady", "tex": "res://art/enemies/white_lady.png",
-		"hp": 26.0, "speed": 42.0, "dmg": 9.0, "radius": 8.0, "xp": 3,
+		"hp": 26.0, "speed": 32.0, "dmg": 6.0, "radius": 8.0, "xp": 3,
 		"behavior": "phase", "tags": ["spirit"], "scale": 1.0,
 	},
 	"aswang": {
 		"name": "Aswang", "tex": "res://art/enemies/aswang.png",
-		"hp": 80.0, "speed": 60.0, "dmg": 15.0, "radius": 9.0, "xp": 8,
+		"hp": 80.0, "speed": 45.0, "dmg": 10.0, "radius": 9.0, "xp": 8,
 		"behavior": "chase", "tags": ["aswang"], "scale": 1.0,
-	},
-	"nuno": {
-		"name": "Nuno sa Punso", "tex": "res://art/enemies/nuno.png",
-		"hp": 24.0, "speed": 0.0, "dmg": 8.0, "radius": 7.0, "xp": 2,
-		"behavior": "turret", "tags": ["spirit"], "scale": 1.0,
 	},
 	"kapre": {
 		"name": "Kapre", "tex": "res://art/enemies/kapre.png",
-		"hp": 720.0, "speed": 28.0, "dmg": 18.0, "radius": 18.0, "xp": 60,
+		"hp": 720.0, "speed": 22.0, "dmg": 14.0, "radius": 18.0, "xp": 60,
 		"behavior": "boss_kapre", "tags": ["spirit"], "scale": 1.0, "boss": true,
 	},
 	"bakunawa": {
 		"name": "Bakunawa", "tex": "res://art/enemies/bakunawa.png",
-		"hp": 2200.0, "speed": 46.0, "dmg": 22.0, "radius": 24.0, "xp": 200,
+		"hp": 2200.0, "speed": 35.0, "dmg": 18.0, "radius": 24.0, "xp": 200,
 		"behavior": "boss_bakunawa", "tags": ["aswang"], "scale": 1.0, "boss": true,
 	},
 }

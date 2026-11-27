@@ -142,10 +142,6 @@ func _think(delta: float) -> void:
 				position = main.player.position + Vector2(cos(ang), sin(ang)) * randf_range(70.0, 110.0)
 				FXRef.burst(main.fx_layer, position, Color("#cfe4ec"), 6)
 			_move(dir, speed, delta)
-		"turret":
-			if shoot_cd <= 0.0:
-				shoot_cd = 1.8
-				main.spawn_hostile_projectile(position, dir * 130.0, damage * 0.6, Color("#a8895e"), 4.0)
 		"boss_kapre":
 			_move(dir, speed, delta)
 			throw_cd -= delta

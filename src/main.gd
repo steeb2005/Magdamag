@@ -57,8 +57,10 @@ var best_time := 0.0
 var wins := 0
 var autotest := false
 var god := false
+var verbose := false
 var debug_timer := 0.0
 var shot_mode := ""
+var force_evo_test := false
 
 
 func _ready() -> void:
@@ -76,76 +78,26 @@ func _ready() -> void:
 		flags.append(String(a).trim_prefix("--"))
 	autotest = flags.has("autotest")
 	god = flags.has("god")
-	for m in ["menu", "game", "level", "boss", "win"]:
+	verbose = flags.has("verbose")
+	force_evo_test = flags.has("force-evo-test")
+	for m in ["menu", "game", "level", "boss", "win", "evo"]:
 		if flags.has("shot-" + m):
 			shot_mode = m
 	if shot_mode != "":
 		_setup_shot()
 		return
-	if autotest or flags.has("autostart"):
+	if force_evo_test:
+		start_run("isko")
+		_setup_evo_test()
+	elif autotest or flags.has("autostart"):
 		start_run("isko")
 
 
-# ---------------------------------------------------------------------------
-# Screenshot harness (run windowed, not headless)
-# ---------------------------------------------------------------------------
 func _setup_shot() -> void:
-	match shot_mode:
-		"menu":
-			pass
-		"game":
-			start_run("isko")
-			_fake_progress(215.0)
-		"level":
-			start_run("isko")
-			_fake_progress(150.0)
-			player.pending_levels = 1
-			_open_levelup()
-		"boss":
-			start_run("isko")
-			_fake_progress(365.0)
-			_spawn_boss("kapre")
-			boss.position = player.position + Vector2(110, -40)
-		"win":
-			start_run("isko")
-			_fake_progress(1080.0)
-			_win()
-	await get_tree().create_timer(1.4, true).timeout
-	await RenderingServer.frame_post_draw
-	var img := get_viewport().get_texture().get_image()
-	var path := "res://shot_%s.png" % shot_mode
-	var err := img.save_png(path)
-	print("SHOT %s -> %s (err=%d)" % [shot_mode, path, err])
-	get_tree().quit()
-
-
-func _fake_progress(t: float) -> void:
-	time = t
-	if player == null:
-		return
-	_demo_build()
-	var kinds := ["tiktik", "dwende", "balbal", "tiyanak", "white_lady", "aswang"]
-	for i in 46:
-		var ang := rng.randf() * TAU
-		var dist := rng.randf_range(60.0, 250.0)
-		var kind: String = kinds[rng.randi_range(0, mini(kinds.size() - 1, 1 + int(t / 90.0)))]
-		spawn_enemy(kind, player.position + Vector2(cos(ang), sin(ang)) * dist)
-
-
-func _demo_build() -> void:
-	for id in ["itak", "banga", "tsinelas", "sumpit", "kulintang"]:
-		if not player.has_weapon(id):
-			player.add_weapon(id)
-	player.upgrade_weapon("itak")
-	player.upgrade_weapon("banga")
-	player.upgrade_weapon("kulintang")
-	for id in ["agimat", "bakya", "singsing", "kandila"]:
-		player.add_passive(id)
-	player.level = 14
-	player.xp = 14
-	player.xp_next = 48
-	hud.refresh_build()
-	hud.update_game()
+	# Dev-only screenshot harness — lives in dev/shot_harness.gd to keep shipping code clean
+	var harness = preload("res://dev/shot_harness.gd").new()
+	add_child(harness)
+	await harness.setup(self, shot_mode)
 
 
 # ---------------------------------------------------------------------------
@@ -215,22 +167,22 @@ func request_pause() -> void:
 
 func act_name() -> String:
 	if time < 180.0:
-		return "TAKIPSILIM"
+		return "DUSK"
 	if time < 360.0:
-		return "GABI"
+		return "NIGHT"
 	if time < 600.0:
-		return "HATINGGABI"
+		return "MIDNIGHT"
 	if time < 840.0:
-		return "MADALING-ARAW"
-	return "BUKANG-LIWAYWAY"
+		return "PRE-DAWN"
+	return "DAWN"
 
 
 func enemy_hp_mult() -> float:
-	return 1.0 + time / 60.0 * 0.11
+	return 1.0 + time / 60.0 * 0.08
 
 
 func enemy_dmg_mult() -> float:
-	return 1.0 + time / 60.0 * 0.05
+	return 1.0 + time / 60.0 * 0.035
 
 
 # ---------------------------------------------------------------------------
@@ -248,7 +200,7 @@ func start_run(char_id: String) -> void:
 	dawn = false
 	dawn_tick = 0.0
 	act_index = 0
-	spawn_timer = 0.6
+	spawn_timer = 0.7
 	elite_timer = 40.0
 	shake_amt = 0.0
 	boss_spawned = [false, false]
@@ -267,7 +219,31 @@ func start_run(char_id: String) -> void:
 	player.died.connect(_on_player_died)
 
 	hud.begin_run(char_id)
-	hud.toast("TAKIPSILIM", 2.0)
+	hud.toast("DUSK", 2.0)
+
+
+func _setup_evo_test() -> void:
+	# Force Itak to level 8 + Singsing passive for evolution test
+	if player != null:
+		# Ensure Itak exists
+		if not player.has_weapon("itak"):
+			player.add_weapon("itak")
+		# Upgrade Itak to level 8
+		for i in range(7):
+			player.upgrade_weapon("itak")
+		# Add Singsing passive (required for Itak evolution)
+		player.add_passive("singsing")
+		# Add some other weapons/passives for variety
+		player.add_weapon("bawang")
+		player.add_weapon("kulintang")
+		player.add_passive("agimat")
+		player.add_passive("bakya")
+		player.level = 15
+		player.recalc_stats()
+		hud.refresh_build()
+		# Trigger level-up to show evolution card
+		player.pending_levels = 1
+		_open_levelup()
 
 
 func restart_run() -> void:
@@ -319,7 +295,7 @@ func _win() -> void:
 
 
 func _stats_text() -> String:
-	return "survived  %s\ntime of night  %s\nkills  %d\nlevel  %d\nbarya  %d" % [
+	return "survived  %s\ntime of night  %s\nkills  %d\nlevel  %d\ncoins  %d" % [
 		hud._fmt(time), act_name(), kills, player.level if player != null else 1,
 		player.gold if player != null else 0,
 	]
@@ -599,7 +575,7 @@ func _process(delta: float) -> void:
 		return
 
 	time += delta
-	if autotest and int(time * 60.0) % 60 == 0:
+	if autotest and verbose and int(time * 60.0) % 60 == 0:
 		print("TICK time=%.1f enemies=%d" % [time, enemies.size()])
 	_tick_acts()
 	_tick_dawn(delta)
@@ -624,9 +600,10 @@ func _process(delta: float) -> void:
 
 	spawn_timer -= delta
 	if spawn_timer <= 0.0:
-		spawn_timer = clampf(0.62 - time * 0.0004, 0.28, 0.62)
-		var count := mini(2 + int(time / 70.0), 6)
-		if enemies.size() < 240:
+		# Fast early spawns for XP, slow late-game scaling
+		spawn_timer = clampf(0.65 - time * 0.0002, 0.4, 0.65)
+		var count := mini(2 + int(time / 80.0), 5)
+		if enemies.size() < 150:
 			for i in count:
 				_spawn_at_ring(_pick_type())
 
@@ -664,7 +641,7 @@ func _tick_acts() -> void:
 		new_index = 1
 	if new_index != act_index:
 		act_index = new_index
-		var names := ["TAKIPSILIM", "GABI", "HATINGGABI", "MADALING-ARAW", "BUKANG-LIWAYWAY"]
+		var names := ["DUSK", "NIGHT", "MIDNIGHT", "PRE-DAWN", "DAWN"]
 		hud.toast(names[act_index], 2.2)
 		if player != null:
 			player.recalc_stats()
@@ -675,7 +652,7 @@ func _tick_dawn(delta: float) -> void:
 		dawn = true
 		if player != null:
 			player.damage_mult += 0.25
-		hud.toast("BUKANG-LIWAYWAY", 3.0)
+		hud.toast("DAWN", 3.0)
 		shake(6.0)
 
 	var target := Color(0.52, 0.48, 0.56)
@@ -860,7 +837,7 @@ func _try_interact() -> void:
 		if player.position.distance_to(m["pos"]) < 30.0:
 			m["used"] = true
 			player.grant_blessing()
-			FXRef.text(fx_layer, m["pos"] + Vector2(0, -18), "TABI-TABI PO", Color("#9fd8e8"), 9)
+			FXRef.text(fx_layer, m["pos"] + Vector2(0, -18), "RESPECT", Color("#9fd8e8"), 9)
 			FXRef.burst(fx_layer, m["pos"], Color("#9fd8e8"), 8)
 			hud.toast("+5% DAMAGE  (60s)", 2.0)
 			var node = m["node"]

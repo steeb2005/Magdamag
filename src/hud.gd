@@ -77,7 +77,7 @@ func _label(text: String, size: int, col := Color("#e8e2d0")) -> Label:
 	return l
 
 
-func _button(text: String, size := 10) -> Button:
+func _button(text: String, size := 10, focusable := true) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.add_theme_font_size_override("font_size", size)
@@ -87,8 +87,8 @@ func _button(text: String, size := 10) -> Button:
 	b.add_theme_stylebox_override("normal", _panel_style(Color("#161a28"), Color("#3a3f55")))
 	b.add_theme_stylebox_override("hover", _panel_style(Color("#1e2335"), Color("#c8b273")))
 	b.add_theme_stylebox_override("pressed", _panel_style(Color("#2a2030"), Color("#ffd27a")))
-	b.add_theme_stylebox_override("focus", _panel_style(Color(0, 0, 0, 0), Color(0, 0, 0, 0)))
-	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_stylebox_override("focus", _panel_style(Color("#1e2335"), Color("#ffd27a"), 2))
+	b.focus_mode = Control.FOCUS_ALL if focusable else Control.FOCUS_NONE
 	return b
 
 
@@ -171,10 +171,11 @@ func _build_menu() -> void:
 		var card := Button.new()
 		card.position = Vector2(52.0 + float(i) * 180.0, 104.0)
 		card.size = Vector2(172, 132)
-		card.focus_mode = Control.FOCUS_NONE
+		card.focus_mode = Control.FOCUS_ALL
 		card.add_theme_stylebox_override("normal", _panel_style(Color("#11141f"), Color("#3a3f55"), 1))
 		card.add_theme_stylebox_override("hover", _panel_style(Color("#181d2c"), Color("#c8b273"), 2))
 		card.add_theme_stylebox_override("pressed", _panel_style(Color("#181d2c"), Color("#ffd27a"), 2))
+		card.add_theme_stylebox_override("focus", _panel_style(Color("#181d2c"), Color("#ffd27a"), 2))
 		menu.add_child(card)
 
 		var box := VBoxContainer.new()
@@ -280,7 +281,7 @@ func _build_game() -> void:
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	game.add_child(timer_label)
 
-	act_label = _label("TAKIPSILIM", 8, Color("#9fd8e8"))
+	act_label = _label("DUSK", 8, Color("#9fd8e8"))
 	act_label.position = Vector2(220, 24)
 	act_label.size = Vector2(200, 12)
 	act_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -292,7 +293,7 @@ func _build_game() -> void:
 	kill_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	game.add_child(kill_label)
 
-	gold_label = _label("BARYA 0", 8, Color("#e8ba54"))
+	gold_label = _label("COINS 0", 8, Color("#e8ba54"))
 	gold_label.position = Vector2(470, 22)
 	gold_label.size = Vector2(160, 12)
 	gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -468,6 +469,13 @@ func show_menu(best_time: float, wins: int) -> void:
 		best_label.text = "best: %s     wins: %d" % [_fmt(best_time), wins]
 	else:
 		best_label.text = "wins: %d" % wins
+	# Focus first character card
+	call_deferred("_focus_first_char_card")
+
+
+func _focus_first_char_card() -> void:
+	if not char_cards.is_empty() and char_cards[0] is Button:
+		char_cards[0].grab_focus()
 
 
 func begin_run(_char_id: String) -> void:
@@ -477,7 +485,7 @@ func begin_run(_char_id: String) -> void:
 	pause_menu.visible = false
 	end_screen.visible = false
 	refresh_build()
-	toast("TAKIPSILIM", 2.0)
+	toast("DUSK", 2.0)
 
 
 # ---------------------------------------------------------------------------
@@ -493,7 +501,7 @@ func update_game() -> void:
 	act_label.text = main.act_name()
 	level_label.text = "LV %d" % p.level
 	kill_label.text = "KILLS %d" % main.kills
-	gold_label.text = "BARYA %d" % p.gold
+	gold_label.text = "COINS %d" % p.gold
 
 	if main.boss != null and is_instance_valid(main.boss) and not main.boss.dead:
 		boss_name.visible = true
@@ -507,7 +515,7 @@ func update_game() -> void:
 		boss_bar_fill.visible = false
 
 	var near_mound: bool = main.mound_near_player()
-	hint_label.text = "[E]  TABI-TABI PO" if near_mound else ""
+	hint_label.text = "[E]  INTERACT" if near_mound else ""
 
 
 func refresh_build() -> void:
@@ -561,10 +569,11 @@ func show_levelup(cards: Array) -> void:
 		var card: Dictionary = cards[i]
 		var b := Button.new()
 		b.custom_minimum_size = Vector2(168, 168)
-		b.focus_mode = Control.FOCUS_NONE
+		b.focus_mode = Control.FOCUS_ALL
 		b.add_theme_stylebox_override("normal", _panel_style(Color("#12151f"), Color("#3a3f55"), 1))
 		b.add_theme_stylebox_override("hover", _panel_style(Color("#1a1f2e"), Color("#ffd27a"), 2))
 		b.add_theme_stylebox_override("pressed", _panel_style(Color("#241d2b"), Color("#ffd27a"), 2))
+		b.add_theme_stylebox_override("focus", _panel_style(Color("#1a1f2e"), Color("#ffd27a"), 2))
 		card_row.add_child(b)
 
 		var box := VBoxContainer.new()
@@ -606,6 +615,16 @@ func show_levelup(cards: Array) -> void:
 
 		b.pressed.connect(_on_card.bind(i))
 
+		# Focus first card after a frame
+		if i == 0:
+			call_deferred("_focus_first_card")
+
+
+func _focus_first_card() -> void:
+	var children := card_row.get_children()
+	if not children.is_empty() and children[0] is Button:
+		children[0].grab_focus()
+
 
 func hide_levelup() -> void:
 	levelup.visible = false
@@ -613,6 +632,16 @@ func hide_levelup() -> void:
 
 func show_pause(v: bool) -> void:
 	pause_menu.visible = v
+	if v:
+		call_deferred("_focus_resume_button")
+
+
+func _focus_resume_button() -> void:
+	var children := pause_menu.get_children()
+	for c in children:
+		if c is Button and c.text == "RESUME":
+			c.grab_focus()
+			break
 
 
 func show_end(win: bool, stats: String) -> void:
@@ -620,16 +649,64 @@ func show_end(win: bool, stats: String) -> void:
 	levelup.visible = false
 	pause_menu.visible = false
 	if win:
-		end_title.text = "BUKANG-LIWAYWAY"
+		end_title.text = "DAWN"
 		end_title.add_theme_color_override("font_color", Color("#ffd27a"))
 	else:
-		end_title.text = "NAMATAY"
+		end_title.text = "DEFEATED"
 		end_title.add_theme_color_override("font_color", Color("#b03434"))
 	end_stats.text = stats
+	call_deferred("_focus_retry_button")
+
+
+func _focus_retry_button() -> void:
+	var children := end_screen.get_children()
+	for c in children:
+		if c is Button and c.text == "ULITIN":
+			c.grab_focus()
+			break
 
 
 func _on_card(i: int) -> void:
 	main.card_picked(i)
+
+
+func _focus_next_card() -> void:
+	var children := card_row.get_children()
+	if children.is_empty():
+		return
+	var current_focus = get_viewport().gui_get_focus_owner()
+	var current_idx := -1
+	for idx in children.size():
+		if children[idx] == current_focus:
+			current_idx = idx
+			break
+	var next_idx := (current_idx + 1) % children.size()
+	if children[next_idx] is Button:
+		children[next_idx].grab_focus()
+
+
+func _focus_prev_card() -> void:
+	var children := card_row.get_children()
+	if children.is_empty():
+		return
+	var current_focus = get_viewport().gui_get_focus_owner()
+	var current_idx := -1
+	for idx in children.size():
+		if children[idx] == current_focus:
+			current_idx = idx
+			break
+	var prev_idx := (current_idx - 1 + children.size()) % children.size()
+	if children[prev_idx] is Button:
+		children[prev_idx].grab_focus()
+
+
+func _accept_focused_card() -> void:
+	var current_focus = get_viewport().gui_get_focus_owner()
+	var children := card_row.get_children()
+	for idx in children.size():
+		if children[idx] == current_focus:
+			_on_card(idx)
+			break
 
 
 func _fmt(seconds: float) -> String:
@@ -644,25 +721,39 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 
-	if levelup.visible and event is InputEventKey and event.pressed and not event.echo:
-		match event.keycode:
-			KEY_1:
-				_on_card(0)
-			KEY_2:
-				_on_card(1)
-			KEY_3:
-				_on_card(2)
+	# Gamepad/keyboard navigation for levelup screen
+	if levelup.visible:
+		if event.is_action_pressed("ui_left") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_LEFT):
+			_focus_prev_card()
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_right") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_RIGHT):
+			_focus_next_card()
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_accept") or (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER)):
+			_accept_focused_card()
+			get_viewport().set_input_as_handled()
+			return
+		# Keep keyboard 1/2/3 for quick selection
+		if event is InputEventKey and event.pressed and not event.echo:
+			match event.keycode:
+				KEY_1: _on_card(0); get_viewport().set_input_as_handled()
+				KEY_2: _on_card(1); get_viewport().set_input_as_handled()
+				KEY_3: _on_card(2); get_viewport().set_input_as_handled()
 		return
 
-	if menu.visible and event is InputEventKey and event.pressed and not event.echo:
-		match event.keycode:
-			KEY_ENTER, KEY_KP_ENTER:
-				main.start_run(DataRef.CHAR_ORDER[selected_char])
-			KEY_LEFT:
-				_select_char((selected_char + 2) % 3)
-			KEY_RIGHT:
-				_select_char((selected_char + 1) % 3)
-			KEY_A:
-				_select_char((selected_char + 2) % 3)
-			KEY_D:
-				_select_char((selected_char + 1) % 3)
+	# Gamepad/keyboard navigation for menu screen
+	if menu.visible:
+		if event.is_action_pressed("ui_left") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_LEFT) or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_A):
+			_select_char((selected_char + 2) % 3)
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_right") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_RIGHT) or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_D):
+			_select_char((selected_char + 1) % 3)
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_accept") or (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER)):
+			main.start_run(DataRef.CHAR_ORDER[selected_char])
+			get_viewport().set_input_as_handled()
+			return

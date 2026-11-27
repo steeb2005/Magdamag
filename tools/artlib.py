@@ -125,6 +125,9 @@ def preview(paths, out_name="preview.png", scale=4, cols=8):
         x = (n % cols) * cell_w + 4
         y = (n // cols) * cell_h + 4
         sheet.alpha_composite(big, (x, y))
-    path = os.path.join(ART, out_name)
+    # Save to dev/ folder (outside res:// via .gdignore) so Godot doesn't import as game textures
+    dev_dir = os.path.join(ROOT, "dev")
+    os.makedirs(dev_dir, exist_ok=True)
+    path = os.path.join(dev_dir, out_name)
     sheet.save(path)
     return path

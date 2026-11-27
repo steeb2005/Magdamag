@@ -13,18 +13,18 @@ var char_id := "isko"
 var char_data: Dictionary = {}
 
 # --- stats -----------------------------------------------------------------
-var base_hp := 100.0
-var max_hp := 100.0
-var hp := 100.0
-var base_speed := 110.0
-var speed := 110.0
+var base_hp := 140.0
+var max_hp := 140.0
+var hp := 140.0
+var base_speed := 95.0
+var speed := 95.0
 var damage_mult := 1.0
 var area_mult := 1.0
 var cooldown_mult := 1.0
 var crit_chance := 0.05
 var crit_mult := 1.5
 var pickup_radius := 60.0
-var regen := 0.0
+var regen := 2.0
 var armor := 0.0
 var aswang_bonus := 0.0
 var heal_bonus := 1.0
@@ -144,6 +144,7 @@ func recalc_stats() -> void:
 	pickup_radius = 60.0 + float(passives.get("bayong", 0)) * 30.0
 	regen = float(passives.get("tabo", 0)) * 0.6
 	aswang_bonus = float(passives.get("kwintas", 0)) * 0.15
+	armor = float(passives.get("salakot", 0)) * 1.0
 	light_scale = 1.05 + float(passives.get("kandila", 0)) * 0.14
 	if light != null:
 		light.texture_scale = light_scale
@@ -236,15 +237,15 @@ func _physics_process(delta: float) -> void:
 	move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
 	if Input.is_action_just_pressed("dash") and dash_cd <= 0.0 and dash_t <= 0.0:
-		dash_t = 0.13
-		dash_cd = 2.0
+		dash_t = 0.12
+		dash_cd = 2.5
 		dash_dir = facing
 		invuln = maxf(invuln, 0.3)
 		FXRef.burst(get_parent(), position, Color("#9fd8e8"), 4)
 
 	if dash_t > 0.0:
 		dash_t -= delta
-		position += dash_dir * 430.0 * delta
+		position += dash_dir * 320.0 * delta
 		walking = true
 	elif move_input.length() > 0.05:
 		facing = move_input.normalized()
@@ -445,9 +446,8 @@ func take_damage(amount: float) -> void:
 	if invuln > 0.0 or hp <= 0.0:
 		return
 	hp -= maxf(1.0, amount - armor)
-	invuln = 0.55
+	invuln = 0.8
 	hurt_flash = 0.18
-	main.shake(3.0)
 	if hp <= 0.0:
 		hp = 0.0
 		died.emit()
