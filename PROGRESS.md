@@ -129,8 +129,8 @@ Ordered by severity. Everything here is real and observable.
 |---|---|---|---|
 | 1 | `TICK time=… enemies=…` printed every simulated second | `main.gd:513` | Debug spam left in from spawn tuning. Gate behind `--verbose` or delete. |
 | 2 | Screenshot harness ships in gameplay code | `main.gd` (`_setup_shot`, `_fake_progress`, `_demo_build`) | Dev-only; should be wrapped in `if OS.is_debug_build()` or moved to `tools/`. |
-| 3 | Asset folder pollution | `art/preview_*.png`, root `shot_*.png` | Imported by Godot as game textures → build bloat. Move to `dev/` outside `res://` imports. |
-| 4 | Stray logs in project root | `test_out.txt`, `import_out.txt`, `shot_out.txt` | Delete or relocate to temp. |
+| 3 | ~~Asset folder pollution~~ **RESOLVED** | `.gitignore` | Was: `art/preview_*.png` + root `shot_*.png` tracked as game textures. Now ignored and untracked. They still sit inside `res://` so Godot keeps importing them — acceptable once untracked; relocating out of `res://` remains optional. |
+| 4 | ~~Stray logs in project root~~ **RESOLVED** | `.gitignore` | `test_out.txt`, `import_out.txt`, `shot_out.txt` are untracked and ignored. Still written by dev runs; delete freely. |
 | 5 | Nuno `turret` behaviour is unreachable | `enemy.gd` + `main.gd:_pick_type` | `_pick_type()` never returns `nuno`; the enemy exists only as a decor mound. Either spawn hostile nunos or delete the branch. |
 | 6 | `player.armor` is always 0 | `player.gd:28` | No passive feeds it. Dead stat — needs Salakot/Sinigang. |
 | 7 | XP orbs never expire | `orb.gd`, `main.gd:_drop_xp` | Orbs left off-screen accumulate for the whole run (no despawn/pooling). Long-run leak + draw cost. |
@@ -259,3 +259,4 @@ One jungle map, procedurally scattered. No stage select, no 7 biomes, no biome-s
 - **2026-11-27** — Screenshot harness (`--shot-*`) added and used for visual verification of menu, gameplay, level-up, boss, and win screens.
 - **2026-11-27** — Visual pass: world shrunk 4096→3200 px; jungle decor density tripled; foliage rebuilt as irregular multi-blob canopies with 3 tree + 2 balete variants (baked shadows removed); ambient lifted; lantern pool reduced; player given a dark outline, brighter palette, and draw priority so it reads inside the horde.
 - **2026-11-27** — `PROGRESS.md` created as the standing status ledger. Headless 2 min autotest re-verified clean after the visual pass.
+- **2026-11-27** — Repo hygiene: `.godot/` untracked (162 files) and `.godot/` + `__pycache__/` + `build/` + `export/` + `*.pck` ignored. `.gitignore` was UTF-16 LE with BOM, which git cannot parse — all patterns were silently inert; rewritten as UTF-8 without BOM and verified with `git check-ignore`. 12 dev artifacts (5 screenshots, 3 scratch logs, 4 art preview sheets) untracked.
