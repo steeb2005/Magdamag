@@ -428,8 +428,9 @@ func _build_end() -> void:
 
 	end_stats = _label("", 10, Color("#e8e2d0"))
 	end_stats.position = Vector2(0, 116)
-	end_stats.size = Vector2(640, 90)
+	end_stats.size = Vector2(640, 150)
 	end_stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	end_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	end_screen.add_child(end_stats)
 
 	var again := _button("ULITIN", 11)

@@ -9,8 +9,8 @@ const CHARACTERS := {
 		"name": "ISKO",
 		"title": "Barangay Tanod",
 		"weapon": "itak",
-		"hp": 100.0,
-		"speed": 110.0,
+		"hp": 160.0,
+		"speed": 95.0,
 		"tex": "res://art/players/isko.png",
 		"perk": "+8% speed after 6:00",
 	},
@@ -18,7 +18,7 @@ const CHARACTERS := {
 		"name": "LOLA BINING",
 		"title": "Albularyo",
 		"weapon": "bawang",
-		"hp": 90.0,
+		"hp": 140.0,
 		"speed": 104.0,
 		"tex": "res://art/players/bining.png",
 		"perk": "Healing +25%",
@@ -27,7 +27,7 @@ const CHARACTERS := {
 		"name": "MANG DORING",
 		"title": "Arnisador",
 		"weapon": "yantok",
-		"hp": 110.0,
+		"hp": 170.0,
 		"speed": 112.0,
 		"tex": "res://art/players/doring.png",
 		"perk": "Attack speed +10%",
@@ -96,9 +96,51 @@ const WEAPONS := {
 		"dmg": 14.0,
 		"desc": "Gong pulse expands around you and stuns.",
 	},
+	"pana": {
+		"name": "Pana",
+		"icon": "res://art/icons/pana.png",
+		"cd": 1.0,
+		"dmg": 9.0,
+		"desc": "Bow fires a spread of 2 arrows that pierce.",
+	},
+	"sulo": {
+		"name": "Sulo",
+		"icon": "res://art/icons/sulo.png",
+		"cd": 0.4,
+		"dmg": 4.0,
+		"desc": "Torch leaves a short fire trail behind you.",
+	},
+	"yoyo": {
+		"name": "Yoyo",
+		"icon": "res://art/icons/yoyo.png",
+		"cd": 1.5,
+		"dmg": 7.0,
+		"desc": "Yoyo loops out and back, hitting on both passes.",
+	},
+	"sibat": {
+		"name": "Sibat",
+		"icon": "res://art/icons/sibat.png",
+		"cd": 1.2,
+		"dmg": 11.0,
+		"desc": "Spear thrust pierces a line with a small forward step.",
+	},
+	"lantaka": {
+		"name": "Lantaka",
+		"icon": "res://art/icons/lantaka.png",
+		"cd": 3.0,
+		"dmg": 28.0,
+		"desc": "Bamboo cannon fires a slow shell with big AoE.",
+	},
+	"kalabaw": {
+		"name": "Kalabaw",
+		"icon": "res://art/icons/kalabaw.png",
+		"cd": 4.0,
+		"dmg": 16.0,
+		"desc": "Carabao charges across the screen, trampling a line.",
+	},
 }
 
-const WEAPON_ORDER := ["itak", "balisong", "yantok", "sumpit", "banga", "bawang", "tsinelas", "kulintang"]
+const WEAPON_ORDER := ["itak", "balisong", "yantok", "sumpit", "banga", "bawang", "tsinelas", "kulintang", "pana", "sulo", "yoyo", "sibat", "lantaka", "kalabaw"]
 
 # ---------------------------------------------------------------------------
 # Passives
@@ -113,9 +155,13 @@ const PASSIVES := {
 	"tabo": {"name": "Tabo", "icon": "res://art/icons/tabo.png", "max": 5, "desc": "+0.6 HP per second."},
 	"kwintas": {"name": "Kwintas", "icon": "res://art/icons/kwintas.png", "max": 5, "desc": "+15% damage vs aswang."},
 	"salakot": {"name": "Salakot", "icon": "res://art/icons/salakot.png", "max": 5, "desc": "+1 armor."},
+	"kawayan": {"name": "Kawayan", "icon": "res://art/icons/kawayan.png", "max": 3, "desc": "+1 projectile."},
+	"panyo": {"name": "Panyo", "icon": "res://art/icons/panyo.png", "max": 5, "desc": "+5% dodge chance."},
+	"puno_ng_balete": {"name": "Puno ng Balete", "icon": "res://art/icons/puno_ng_balete.png", "max": 3, "desc": "+20% luck, +25% elite spawn rate."},
+	"bagoong": {"name": "Bagoong", "icon": "res://art/icons/bagoong.png", "max": 5, "desc": "Stink aura: 20 dps in 48 px."},
 }
 
-const PASSIVE_ORDER := ["agimat", "bakya", "singsing", "kandila", "bayong", "pamaypay", "tabo", "kwintas", "salakot"]
+const PASSIVE_ORDER := ["agimat", "bakya", "singsing", "kandila", "bayong", "pamaypay", "tabo", "kwintas", "salakot", "kawayan", "panyo", "puno_ng_balete", "bagoong"]
 
 # ---------------------------------------------------------------------------
 # Evolutions: weapon at level 8 + required passive
@@ -139,6 +185,42 @@ const EVOLUTIONS := {
 		"desc": "Darts pierce everything and leave poison.",
 		"icon": "res://art/icons/sumpit.png",
 	},
+	"pana": {
+		"passive": "kawayan",
+		"name": "Pana ng Diwata",
+		"desc": "Homing arrows, pierce 3, +1 projectile.",
+		"icon": "res://art/icons/pana.png",
+	},
+	"sulo": {
+		"passive": "kandila",
+		"name": "Santelmo",
+		"desc": "Orbiting fireball that seeks the nearest enemy.",
+		"icon": "res://art/icons/sulo.png",
+	},
+	"yoyo": {
+		"passive": "panyo",
+		"name": "Yoyo ng Bayan",
+		"desc": "Two yoyos orbit and pull enemies inward.",
+		"icon": "res://art/icons/yoyo.png",
+	},
+	"sibat": {
+		"passive": "agimat",
+		"name": "Sibat ng Kidlat",
+		"desc": "Calls a lightning spear from the sky on the furthest enemy.",
+		"icon": "res://art/icons/sibat.png",
+	},
+	"lantaka": {
+		"passive": "puno_ng_balete",
+		"name": "Lantaka ng Moog",
+		"desc": "Cluster shells, 3 explosions.",
+		"icon": "res://art/icons/lantaka.png",
+	},
+	"kalabaw": {
+		"passive": "bagoong",
+		"name": "Kalabaw ng Bukid",
+		"desc": "Two carabaos, wider trample, 1 s stun.",
+		"icon": "res://art/icons/kalabaw.png",
+	},
 }
 
 # ---------------------------------------------------------------------------
@@ -147,32 +229,32 @@ const EVOLUTIONS := {
 const ENEMIES := {
 	"tiktik": {
 		"name": "Bat", "tex": "res://art/enemies/tiktik.png",
-		"hp": 7.0, "speed": 60.0, "dmg": 3.0, "radius": 6.0, "xp": 1,
+		"hp": 7.0, "speed": 60.0, "dmg": 2.0, "radius": 6.0, "xp": 1,
 		"behavior": "chase", "tags": ["aswang"], "scale": 1.0,
 	},
 	"dwende": {
 		"name": "Imp", "tex": "res://art/enemies/dwende.png",
-		"hp": 9.0, "speed": 48.0, "dmg": 3.0, "radius": 6.0, "xp": 1,
+		"hp": 9.0, "speed": 48.0, "dmg": 2.0, "radius": 6.0, "xp": 1,
 		"behavior": "chase", "tags": ["spirit"], "scale": 1.0,
 	},
 	"balbal": {
 		"name": "Ghoul", "tex": "res://art/enemies/balbal.png",
-		"hp": 36.0, "speed": 26.0, "dmg": 7.0, "radius": 8.0, "xp": 3,
+		"hp": 36.0, "speed": 26.0, "dmg": 5.0, "radius": 8.0, "xp": 3,
 		"behavior": "tank", "tags": ["undead"], "scale": 1.0,
 	},
 	"tiyanak": {
 		"name": "Changeling", "tex": "res://art/enemies/tiyanak.png",
-		"hp": 16.0, "speed": 44.0, "dmg": 6.0, "radius": 6.5, "xp": 2,
+		"hp": 16.0, "speed": 44.0, "dmg": 5.0, "radius": 6.5, "xp": 2,
 		"behavior": "lunge", "tags": ["aswang"], "scale": 1.0,
 	},
 	"white_lady": {
 		"name": "White Lady", "tex": "res://art/enemies/white_lady.png",
-		"hp": 26.0, "speed": 32.0, "dmg": 6.0, "radius": 8.0, "xp": 3,
+		"hp": 26.0, "speed": 32.0, "dmg": 5.0, "radius": 8.0, "xp": 3,
 		"behavior": "phase", "tags": ["spirit"], "scale": 1.0,
 	},
 	"aswang": {
 		"name": "Aswang", "tex": "res://art/enemies/aswang.png",
-		"hp": 80.0, "speed": 45.0, "dmg": 10.0, "radius": 9.0, "xp": 8,
+		"hp": 80.0, "speed": 45.0, "dmg": 8.0, "radius": 9.0, "xp": 8,
 		"behavior": "chase", "tags": ["aswang"], "scale": 1.0,
 	},
 	"kapre": {

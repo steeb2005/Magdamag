@@ -13,7 +13,7 @@ var char_id := "isko"
 var char_data: Dictionary = {}
 
 # --- stats -----------------------------------------------------------------
-var base_hp := 140.0
+var base_hp := 160.0
 var max_hp := 140.0
 var hp := 140.0
 var base_speed := 95.0
@@ -24,7 +24,8 @@ var cooldown_mult := 1.0
 var crit_chance := 0.05
 var crit_mult := 1.5
 var pickup_radius := 60.0
-var regen := 2.0
+var base_regen := 3.0
+var regen := 3.0
 var armor := 0.0
 var aswang_bonus := 0.0
 var heal_bonus := 1.0
@@ -142,7 +143,7 @@ func recalc_stats() -> void:
 	var char_cd := 0.9 if char_id == "doring" else 1.0
 	cooldown_mult = maxf(0.4, (1.0 - float(passives.get("pamaypay", 0)) * 0.07) * char_cd)
 	pickup_radius = 60.0 + float(passives.get("bayong", 0)) * 30.0
-	regen = float(passives.get("tabo", 0)) * 0.6
+	regen = base_regen + float(passives.get("tabo", 0)) * 0.6
 	aswang_bonus = float(passives.get("kwintas", 0)) * 0.15
 	armor = float(passives.get("salakot", 0)) * 1.0
 	light_scale = 1.05 + float(passives.get("kandila", 0)) * 0.14
@@ -398,6 +399,122 @@ func _fire(w: Dictionary) -> void:
 					continue
 				if global_position.distance_to(e.position) <= radius + e.radius:
 					_deal(e, base_dmg, 40.0, 0.35)
+		# --- Pana (bow): spread of 2 arrows, pierce 1 ---
+		"pana":
+			var proj_count := 1 + int(evo)
+			var spread := 0.35
+			for i in proj_count:
+				var dir := facing.rotated((float(i) - 0.5) * spread)
+				var p = ProjectileScript.new()
+				p.mode = "linear"
+				p.position = global_position
+				p.vel = dir * 320.0
+				p.damage = base_dmg * damage_mult * (1.0 + buff_damage)
+				p.crit_chance = crit_chance
+				p.crit_mult = crit_mult
+				p.aswang_bonus = aswang_bonus
+				p.pierce = 3 if evo else 1
+				p.radius = 4.0
+				p.life = 1.0
+				p.color = Color("#b7e07a")
+				p.size = 3.0
+				p.homing = evo
+				p.texture_path = "res://art/icons/pana.png"
+				main.add_projectile(p)
+
+		# --- Sulo (torch): leaves a short fire trail behind you ---
+		"sulo":
+			var trail_dir := -facing
+			var p = ProjectileScript.new()
+			p.mode = "linear"
+			p.position = global_position + trail_dir * 12.0
+			p.vel = trail_dir * 60.0
+			p.damage = base_dmg * damage_mult * (1.0 + buff_damage)
+			p.crit_chance = crit_chance
+			p.crit_mult = crit_mult
+			p.aswang_bonus = aswang_bonus
+			p.pierce = 99
+			p.radius = 6.0
+			p.life = 1.5
+			p.color = Color("#ff8a4d")
+			p.size = 4.0
+			p.texture_path = "res://art/icons/sulo.png"
+			main.add_projectile(p)
+
+		# --- Yoyo (orbit/return): loops out and back, hits on both passes ---
+		"yoyo":
+			var angles: Array = [0.0]
+			if evo:
+				angles = [-0.5, 0.5]
+			for a in angles:
+				var dir := facing.rotated(a)
+				var p = ProjectileScript.new()
+				p.mode = "boomerang"
+				p.position = global_position
+				p.vel = dir * 300.0
+				p.damage = base_dmg * damage_mult * (1.0 + buff_damage)
+				p.crit_chance = crit_chance
+				p.crit_mult = crit_mult
+				p.aswang_bonus = aswang_bonus
+				p.pierce = 99
+				p.radius = 6.0
+				p.life = 1.2
+				p.knock = 80.0
+				p.texture_path = "res://art/icons/yoyo.png"
+				p.spin = 10.0
+				main.add_projectile(p)
+
+		# --- Sibat (spear): thrust pierces a line, small forward step ---
+		"sibat":
+			position += facing * 24.0
+			var hit3 := {}
+			FXRef.slash(get_parent(), global_position, facing, 34.0 * area_mult, 60.0, Color("#cfe4ec"))
+			_melee(facing, 34.0 * area_mult, 60.0, base_dmg, 60.0, 0.0, hit3)
+
+		# --- Lantaka (bamboo cannon): slow shell, big AoE ---
+		"lantaka":
+			var target = _nearest_enemy(400.0)
+			var dest = target.position if target != null else global_position + facing * 260.0
+			var p = ProjectileScript.new()
+			p.mode = "lob"
+			p.position = global_position
+			p.start_pos = global_position
+			p.target_pos = dest
+			p.duration = maxf(0.6, global_position.distance_to(dest) / 200.0)
+			p.damage = base_dmg * damage_mult * (1.0 + buff_damage)
+			p.crit_chance = crit_chance
+			p.crit_mult = crit_mult
+			p.aswang_bonus = aswang_bonus
+			p.aoe = 60.0 * area_mult
+			p.color = Color("#7a5a36")
+			p.size = 8.0
+			p.texture_path = "res://art/icons/lantaka.png"
+			main.add_projectile(p)
+
+		# --- Kalabaw (carabao): summon charges across screen, trampling a line ---
+		"kalabaw":
+			var charge_count := 1
+			if evo:
+				charge_count = 2
+			for c in charge_count:
+				var offset := c * 0.3 - 0.15
+				var dir := facing.rotated(offset)
+				var p = ProjectileScript.new()
+				p.mode = "linear"
+				p.position = global_position
+				p.vel = dir * 420.0
+				p.damage = base_dmg * damage_mult * (1.0 + buff_damage)
+				p.crit_chance = crit_chance
+				p.crit_mult = crit_mult
+				p.aswang_bonus = aswang_bonus
+				p.pierce = 99
+				p.radius = 10.0
+				p.life = 1.0
+				p.knock = 200.0
+				p.color = Color("#8b6b4a")
+				p.size = 10.0
+				p.texture_path = "res://art/icons/kalabaw.png"
+				main.add_projectile(p)
 
 
 func _melee(dir: Vector2, radius: float, arc: float, dmg: float, knock: float, stun: float, hit_set: Dictionary) -> void:

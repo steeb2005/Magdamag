@@ -174,13 +174,133 @@ def icon_salakot():
     return img
 
 
+def icon_pana():
+    img, d = canvas(16, 16)
+    # Bow curve
+    d.arc([3, 3, 12, 13], 220, 320, fill=OUT, width=3)
+    d.arc([4, 4, 11, 12], 220, 320, fill=WOOD, width=2)
+    # Arrow
+    d.line([(10, 5), (15, 5)], fill=OUT, width=3)
+    d.line([(10, 5), (15, 5)], fill=WOOD_D, width=1)
+    d.line([(14, 3), (16, 5)], fill=OUT, width=2)
+    d.line([(14, 7), (16, 5)], fill=OUT, width=2)
+    return img
+
+
+def icon_sulo():
+    img, d = canvas(16, 16)
+    # Torch handle
+    orect(d, (6, 10, 9, 15), WOOD_D)
+    # Flame
+    opoly(d, [(7, 10), (9, 10), (8, 3)], EMBER)
+    opoly(d, [(7, 7), (9, 7), (8, 5)], AMBER)
+    px(d, 8, 4, WHITE)
+    return img
+
+
+def icon_yoyo():
+    img, d = canvas(16, 16)
+    # Two yoyo discs
+    oellipse(d, (3, 6, 7, 10), STEEL)
+    oellipse(d, (8, 6, 12, 10), STEEL)
+    d.ellipse([4, 7, 6, 9], fill=STEEL_D)
+    d.ellipse([9, 7, 11, 9], fill=STEEL_D)
+    # String
+    d.line([(7, 11), (7, 15)], fill=OUT, width=2)
+    return img
+
+
+def icon_sibat():
+    img, d = canvas(16, 16)
+    # Spear shaft
+    d.line([(7, 14), (9, 2)], fill=OUT, width=4)
+    d.line([(7, 14), (9, 2)], fill=WOOD, width=2)
+    # Spear head
+    opoly(d, [(8, 1), (10, 1), (8, 4)], STEEL_D)
+    return img
+
+
+def icon_lantaka():
+    img, d = canvas(16, 16)
+    # Cannon barrel
+    orect(d, (2, 6, 13, 10), WOOD_D)
+    d.rectangle([3, 7, 12, 9], fill=WOOD)
+    # Fuse
+    d.line([(13, 8), (15, 6)], fill=OUT, width=2)
+    d.line([(13, 8), (15, 6)], fill=(190, 160, 100, 255), width=1)
+    px(d, 15, 5, AMBER)
+    return img
+
+
+def icon_kalabaw():
+    img, d = canvas(16, 16)
+    # Body
+    oellipse(d, (2, 8, 12, 14), WOOD_D)
+    d.ellipse([4, 9, 11, 13], fill=(120, 96, 68, 255))
+    # Head
+    opoly(d, [(11, 7), (14, 7), (14, 10), (11, 10)], WOOD_D)
+    # Legs
+    d.line([(4, 14), (4, 15)], fill=WOOD_D, width=3)
+    d.line([(7, 14), (7, 15)], fill=WOOD_D, width=3)
+    d.line([(10, 14), (10, 15)], fill=WOOD_D, width=3)
+    d.line([(13, 14), (13, 15)], fill=WOOD_D, width=3)
+    return img
+
+
+def icon_kawayan():
+    img, d = canvas(16, 16)
+    # Bamboo stalks
+    orect(d, (4, 2, 6, 14), (120, 150, 100, 255))
+    orect(d, (9, 4, 11, 14), (120, 150, 100, 255))
+    for x in (4, 10):
+        d.line([(x, 4), (x, 14)], fill=(80, 100, 70, 255), width=1)
+    d.line([(5, 6), (5, 14)], fill=(80, 100, 70, 255), width=1)
+    d.line([(10, 8), (10, 14)], fill=(80, 100, 70, 255), width=1)
+    return img
+
+
+def icon_panyo():
+    img, d = canvas(16, 16)
+    # Handkerchief
+    opoly(d, [(4, 14), (12, 14), (14, 12), (14, 4), (12, 2), (4, 2), (2, 4), (2, 12)], WHITE)
+    d.line([(4, 6), (12, 6)], fill=OUT, width=1)
+    d.line([(6, 4), (6, 14)], fill=OUT, width=1)
+    return img
+
+
+def icon_puno_ng_balete():
+    img, d = canvas(16, 16)
+    # Tree with aerial roots
+    oellipse(d, (3, 4, 12, 12), GREEN_D)
+    d.ellipse([5, 6, 10, 10], fill=GREEN)
+    d.line([(7, 12), (6, 15)], fill=WOOD_D, width=2)
+    d.line([(8, 12), (9, 15)], fill=WOOD_D, width=2)
+    d.line([(6, 12), (4, 15)], fill=WOOD_D, width=2)
+    d.line([(9, 12), (11, 15)], fill=WOOD_D, width=2)
+    return img
+
+
+def icon_bagoong():
+    img, d = canvas(16, 16)
+    # Jar with fermented contents
+    orect(d, (4, 6, 11, 14), GREY_D)
+    oellipse(d, (4, 4, 11, 10), (110, 140, 60, 255))
+    d.line([(5, 7), (10, 7)], fill=(80, 100, 50, 255))
+    d.line([(5, 9), (10, 9)], fill=(80, 100, 50, 255))
+    return img
+
+
 ICONS = {
     "itak": icon_itak, "balisong": icon_balisong, "yantok": icon_yantok,
     "sumpit": icon_sumpit, "banga": icon_banga, "bawang": icon_bawang,
     "tsinelas": icon_tsinelas, "kulintang": icon_kulintang,
+    "pana": icon_pana, "sulo": icon_sulo, "yoyo": icon_yoyo,
+    "sibat": icon_sibat, "lantaka": icon_lantaka, "kalabaw": icon_kalabaw,
     "agimat": icon_agimat, "bakya": icon_bakya, "singsing": icon_singsing,
     "kandila": icon_kandila, "bayong": icon_bayong, "pamaypay": icon_pamaypay,
     "tabo": icon_tabo, "kwintas": icon_kwintas, "salakot": icon_salakot,
+    "kawayan": icon_kawayan, "panyo": icon_panyo,
+    "puno_ng_balete": icon_puno_ng_balete, "bagoong": icon_bagoong,
 }
 
 

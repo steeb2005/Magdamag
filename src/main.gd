@@ -295,10 +295,21 @@ func _win() -> void:
 
 
 func _stats_text() -> String:
-	return "survived  %s\ntime of night  %s\nkills  %d\nlevel  %d\ncoins  %d" % [
-		hud._fmt(time), act_name(), kills, player.level if player != null else 1,
-		player.gold if player != null else 0,
-	]
+	var lines: Array = []
+	lines.append("survived  %s" % hud._fmt(time))
+	lines.append("time of night  %s" % act_name())
+	lines.append("kills  %d" % kills)
+	lines.append("level  %d" % (player.level if player != null else 1))
+	lines.append("coins  %d" % (player.gold if player != null else 0))
+	lines.append("")
+	lines.append("BUILD")
+	if player != null:
+		for w in player.weapons:
+			var tag := "EVO" if bool(w["evo"]) else "L%d" % int(w["level"])
+			lines.append("  %s [%s]" % [DataRef.WEAPONS[w["id"]]["name"], tag])
+		for id in player.passives:
+			lines.append("  %s L%d" % [DataRef.PASSIVES[id]["name"], int(player.passives[id])])
+	return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -648,7 +659,7 @@ func _tick_acts() -> void:
 
 
 func _tick_dawn(delta: float) -> void:
-	if not dawn and time >= 990.0:
+	if not dawn and time >= 1020.0:
 		dawn = true
 		if player != null:
 			player.damage_mult += 0.25

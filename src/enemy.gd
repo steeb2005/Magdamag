@@ -34,6 +34,7 @@ var lunge_t := 0.0
 var lunge_dir := Vector2.ZERO
 var throw_cd := 2.0
 var stomp_cd := 5.0
+var stomp_warn := 0.0
 var shoot_cd := 2.0
 var charge_cd := 6.0
 var charge_t := 0.0
@@ -151,11 +152,15 @@ func _think(delta: float) -> void:
 				var aim: Vector2 = (main.player.position - position).normalized()
 				main.spawn_hostile_projectile(position + Vector2(0, -12), aim * 150.0, damage * 0.7, Color("#7a5a36"), 6.0)
 			if stomp_cd <= 0.0 and dist < 130.0:
-				stomp_cd = 6.5
-				FXRef.ring(main.fx_layer, position, 120.0, Color("#ffb347"), 0.35)
-				main.shake(6.0)
-				if dist < 120.0:
-					main.player.take_damage(damage)
+				if stomp_warn <= 0.0:
+					stomp_warn = 0.8
+					stomp_cd = 6.5
+					FXRef.ring(main.fx_layer, position, 120.0, Color("#ffb347"), 0.35)
+				stomp_warn = maxf(0.0, stomp_warn - delta)
+				if stomp_warn <= 0.0:
+					main.shake(8.0)
+					if dist < 120.0:
+						main.player.take_damage(damage)
 		"boss_bakunawa":
 			shoot_cd -= delta
 			charge_cd -= delta

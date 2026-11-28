@@ -24,6 +24,7 @@ var sprite: Sprite2D = null
 var color := Color("#ffd27a")
 var size := 4.0
 var spin := 0.0
+var homing := false
 
 var t := 0.0
 var duration := 0.5
@@ -83,6 +84,11 @@ func _physics_process(delta: float) -> void:
 				queue_free()
 		_:
 			position += vel * delta
+			if homing and main.player != null:
+				var nearest = _nearest_enemy(180.0)
+				if nearest != null:
+					var to_e = (nearest.position - position).normalized()
+					vel = vel.lerp(to_e * 320.0, delta * 3.0)
 			_check_hits()
 			if life <= 0.0:
 				queue_free()
@@ -109,6 +115,19 @@ func _check_hits() -> void:
 		if pierce <= 0:
 			queue_free()
 			return
+
+
+func _nearest_enemy(max_dist: float):
+	var best = null
+	var best_d := max_dist
+	for e in main.enemies:
+		if e.dead:
+			continue
+		var d: float = position.distance_to(e.position)
+		if d < best_d:
+			best_d = d
+			best = e
+	return best
 
 
 func _explode() -> void:

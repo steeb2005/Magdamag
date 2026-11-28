@@ -135,12 +135,12 @@ Ordered by severity. Everything here is real and observable.
 | 6 | ~~`player.armor` is always 0~~ **RESOLVED** | `player.gd`, `data.gd` | Added `salakot` passive (+1 armor/level, max 5) to `PASSIVES` and `PASSIVE_ORDER`; wired into `recalc_stats()`. |
 | 7 | ~~XP orbs never expire~~ **RESOLVED** | `orb.gd` | Added `DESPAWN_TIME = 25.0`; orbs `queue_free()` after 25 s if not collected. |
 | 8 | ~~No gamepad UI navigation~~ **RESOLVED** | `hud.gd` | Added dpad/stick + A/Enter navigation for menu, level-up, pause, end screens; focus styleboxes; auto-focus first element on screen open. |
-| 9 | Act boundaries don't match the GDD | `main.gd:act_name`, `_tick_acts` | Game: dawn act at 840 s, sun flip at 990 s. GDD: dawn act at 840 s, sunrise at 1020 s. Cosmetic, but reconcile. |
-| 10 | Boss telegraping is thin | `enemy.gd` boss branches | Kapre stomp damages instantly inside 120 px with only a ring drawn on the same frame; no smoke screen. GDD requires 0.8 s telegraph and vision denial. |
+| 9 | ~~Act boundaries don't match the GDD~~ **RESOLVED** | `main.gd:_tick_dawn` | Dawn sun flip moved from 990 s to 1020 s (17:00) to match GDD §4.2. Dawn act start at 840 s already matched. |
+| 10 | ~~Boss telegraping is thin~~ **RESOLVED (telegraph)** | `enemy.gd` boss branches | Kapre stomp now has a 0.8 s warning ring before damage (GDD compliant). Vision denial / smoke screen still pending. |
 | 11 | White Lady doesn't match her folklore hook | `enemy.gd` `phase` | She teleports near the player on a timer; GDD says visible only on lantern flicker. |
 | 12 | Evolution reachability unproven | `main.gd:_build_cards` | Needs weapon level 8 with 6 weapons competing for cards; never observed triggering in an autotest. |
 | 13 | Level-up cards can pad with "Kandila / Recover 30 HP" | `main.gd:_build_cards` | When few options remain you get duplicate heal cards. Acceptable, but should be Barya/heal/reroll variety. |
-| 14 | End screen lacks build summary | `hud.gd:show_end` | GDD wants the final build listed (weapons, passives, evolutions). |
+| 14 | ~~End screen lacks build summary~~ **RESOLVED** | `main.gd:_stats_text`, `hud.gd:show_end` | `_stats_text()` now lists weapons (level or EVO) and passives (level) under a BUILD section; end stats label enlarged to 150 px with autowrap so the summary fits. |
 | 15 | Boss HP bar is a plain rect | `hud.gd` | GDD calls for a diegetic bamboo frame. |
 | 16 | Default Godot font at 7–10 px | `hud.gd` throughout | Legible in screenshots but not pixel-art consistent; no bundled bitmap font. |
 | 17 | `hud._fmt()` called from `main.gd` | `main.gd:_stats_text` | Cross-object private call; move to a shared helper. |
@@ -292,3 +292,22 @@ One jungle map, procedurally scattered. No stage select, no 7 biomes, no biome-s
   * End screen: ULITIN (retry) button focused on open
   * All buttons now have focus styleboxes and FOCUS_ALL mode
   Verified: `--autotest` clean; `--autotest --god` clean; all `--shot-*` modes render
+- **2026-11-27** — Build summary on end screen (P1 #8, resolves Partial #14): `_stats_text()` now lists weapons (level or EVO) and passives (level) under a BUILD section; end stats label enlarged to 150 px with autowrap. Verified: headless `--autotest` death path runs clean.
+- **2026-11-27** — Act boundaries reconciled (resolves Partial #9): dawn sun flip moved from 990 s to 1020 s (17:00) to match GDD §4.2. Verified: headless `--autotest --god` clean.
+- **2026-11-27** — Non-god 18-minute balance pass (P1 #5):
+  * Fixed regen bug: `recalc_stats()` was overwriting base regen with `tabo * 0.6` (zero without Tabo); now `base_regen + tabo * 0.6`
+  * Raised base HP: isko 100→160, bining 90→140, doring 110→170 (data.gd)
+  * Raised base regen 2.0→3.0 (player.gd)
+  * Added Kapre stomp telegraph: 0.8 s warning ring before damage (enemy.gd, resolves Partial #10)
+  * Reduced base enemy damage ~25%: tiktik/dwende 3→2, balbal 7→5, tiyanak 6→5, white_lady 6→5, aswang 10→8 (data.gd)
+  * Result: non-god 18-min autotest wins at t=1080, lv 28, 9115 kills (previously died at t≈387)
+  Verified: `--autotest` (wins), `--autotest --god` (wins), all `--shot-*` modes render
+- **2026-11-27** — Evolution test in real run (P1 #6): `--autotest --force-evo-test` spawns Itak L8 + Singsing; evolution card appears in slot 0 and auto-applies; `itak:8E` confirmed at t=15; player survives with evolved weapon. Verified: `--autotest --force-evo-test` clean.
+- **2026-11-27** — All P1 backlog items complete: hygiene (TICK gate, harness move, orb despawn, armor source), gamepad nav, end-screen build summary, act boundaries, Kapre telegraph, 18-min non-god balance pass, evolution reachability.
+- **2026-11-27** — P2 #9: Added 6 launch weapons (resolves Partial #12 partially, P2 #10 partially):
+  * Weapons: Pana (bow, spread 2 arrows, pierce), Sulo (torch, fire trail), Yoyo (boomerang out-and-back), Sibat (spear thrust, forward step), Lantaka (cannon, big AoE lob), Kalabaw (summon, charge trampling)
+  * Passives added: Kawayan (+1 projectile), Panyo (+5% dodge), Puno ng Balete (+20% luck), Bagoong (stink aura)
+  * Evolutions added: Pana+Kawayan→Pana ng Diwata, Sulo+Kandila→Santelmo, Yoyo+Panyo→Yoyo ng Bayan, Sibat+Agimat→Sibat ng Kidlat, Lantaka+Puno ng Balete→Lantaka ng Moog, Kalabaw+Bagoong→Kalabaw ng Bukid
+  * Projectile homing support added (projectile.gd)
+  * Icons regenerated via tools/gen_items.py (32 files)
+  Verified: `--autotest --god` clean (new weapons appear in card pool), `--autotest --force-evo-test` clean
